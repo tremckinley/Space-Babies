@@ -1,3 +1,10 @@
+/*Tasks:
+- Wordle Style Clues when you guess the right letter
+  Preserving right letter in right spot
+  preserving right letters in wrong spot
+- Letter transistions after guesses
+*/
+
 class KidName {
   constructor(name, gender, popularity_ranking, country_of_origin, meaning, famous_person) {
     this.name = name;
@@ -57,82 +64,122 @@ const kidNames = [
   new KidName("Jacob", "boy", "Top 10", "Hebrew", "Supplanter", "Jacob Tremblay, a famous actor"),
 ];
 
+
+let roundCount = 1
+const countRound = () => {
+  roundCount =  roundCount + 1;
+  document.querySelector('#rndNum').innerHTML = roundCount
+  console.log(roundCount)
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const nameArray = []
   const inputArea = document.querySelector(".input-container");
   const todaysKid = kidNames[Math.floor(Math.random()*kidNames.length)]
+  //const todaysKid = kidNames[16]
   const todaysKidName = todaysKid.name.toUpperCase()
    
-  //boolean that reads gender and does something
-  if (todaysKid.gender == "boy") {
-    document.querySelector("html").style.backgroundColor = "skyblue";
-  } else if (todaysKid.gender == "girl") {
-    document.querySelector("html").style.backgroundColor = "pink";
-  } else {
-    document.querySelector("html").style.backgroundColor = "violet";
-  }
-
   console.log(todaysKid);
+  document.querySelector('#rndNum').innerHTML = roundCount
+  
   //Adds a square to the DOM for each letter of the name
   for (let index = 0; index < todaysKid.giveLength(); index++) {
     inputArea.innerHTML += "<input type='text' maxlength='1' class='char-input move'>";
     nameArray.push("-")
   }
   console.log(nameArray)
-  inputArea.innerHTML += "<button type='submit' class='move'>ENTER</button>";
+  document.querySelector(".buttonArea").innerHTML += "<button type='submit' class='move' id='enter'>ENTER</button>";
   const inputs = document.querySelectorAll(".move");
   
+  document.querySelector('#hint').classList.add('visible');
 
   inputs.forEach((input, index) => {
     input.addEventListener("input", () => {
       input.value = input.value.toUpperCase()
-      if (input.value.length === 1 && index < inputs.length - 1) {
+      if (input.value.length === 1 && index < inputs.length - 1 && input.value != "") {
+        nameArray[index] = input.value.toUpperCase()
         inputs[index + 1].focus();
       }
-      nameArray[index] = input.value.toUpperCase();
-      //console.log(nameArray);
+      ;
+      console.log(nameArray);
       let guessInput = nameArray.join("");
       document.querySelector(".nameAnswer").innerHTML = `${guessInput}`;
       // if (guessInput == todaysKidName) {
-      //   console.log(todaysKidName);
+         //console.log(todaysKidName);
       //   document.querySelector('html').style.backgroundColor = 'green'
       // }
       
       });
     input.addEventListener("keydown", (e) => {
       if (e.key === "Backspace" && input.value === "" && index > 0) {
+        nameArray[index-1] = '-'
         inputs[index - 1].focus();
       }
     });
   });
-  document.querySelector('#hint').innerHTML += `This is a name for a ${todaysKid.gender}.`
-  document.querySelector('button').addEventListener('click', () => {
+  switch (todaysKid.gender) {
+    case "boy":
+      document.querySelector("article").style.border = " skyblue 0.5rem solid";
+      document.querySelector('#hint').innerHTML += "This is a name for a boy.";
+      break;
+    case "girl":
+      document.querySelector("article").style.border = " pink 0.5rem solid";
+      document.querySelector('#hint').innerHTML += "This is a name for a girl.";
+      break;
+    case "unisex":
+      document.querySelector("article").style.border = "violet 0.5rem solid";
+      document.querySelector('#hint').innerHTML += "This is a unisex name.";
+      break;
+    default:
+      document.querySelector('#hint').innerHTML += "Hints will appear below."
+      break;
+  }
+  document.querySelector("#hint").innerHTML += `
+        <aside id="hint1">Country of Origin: ${todaysKid.country_of_origin}</aside>
+         <aside id="hint2">2023 Popularity Ranking: ${todaysKid.popularity_ranking}</aside>
+         <aside id="hint3">It means: ${todaysKid.meaning}</aside>
+        `
+
+  //document.querySelector('#hint').innerHTML += `This is a name for a ${todaysKid.gender}.`
+  document.querySelector('#enter').addEventListener('click', () => {
+    console.log('test')
     let guessInput = nameArray.join("");
       document.querySelector(".nameAnswer").innerHTML = `${guessInput}`;
       if (guessInput == todaysKidName) {
         console.log(todaysKidName);
         document.querySelector('html').style.backgroundColor = 'green'
-        document.querySelector(
-          "#hint"
-        ).innerHTML += `<aside><b>Congratulations!</b><aside><blockquote>This baby get to share a name with ${todaysKid.famous_person}</blockquote>`;
+        document.querySelector("#hint").innerHTML += `<aside class="visible"><b>Congratulations!</b></aside><aside class="visible">This baby get to share a name with ${todaysKid.famous_person}</aside>`;
       } else {
-        document.querySelector("#hint").innerHTML += `
+        switch (roundCount) {
+          case 1:
+            document.querySelector("#hint1").classList.add('visible');
+            break;
+          case 2:
+            document.querySelector("#hint2").classList.add('visible');
+            break;
+          case 3:
+            document.querySelector("#hint3").classList.add('visible');
+            break;
+          default:
+            document.querySelector("#hint").innerHTML = `GAME OVER - The correct answer was ${todaysKidName}`
+            break;
+        }
+
+
+        /*document.querySelector("#hint").innerHTML += `
         <aside>Country of Origin: ${todaysKid.country_of_origin}</aside>
          <aside>2023 Popularity Ranking: ${todaysKid.popularity_ranking}</aside>
          <aside>It means: ${todaysKid.meaning}</aside>
-        `;
+        `*/
+        countRound()
       }
+      
+
   });
-
-
-
-
-
 
 
 
 
 
 });
-
 
